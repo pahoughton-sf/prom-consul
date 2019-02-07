@@ -1,0 +1,19 @@
+# 2018-12-23 (cc) <paul4hough@gmail.com> -*- conf-unix -*-
+# service file for alertmanager
+[Unit]
+Description=Prometheus Alertmanager Server
+Documentation=https://prometheus.io/docs/introduction/overview/
+After=network-online.target
+
+[Service]
+User={{ prom_user }}
+ExecStart={{ sbin_dir }}/alertmanager \
+	     --config.file {{ prom_cfg_dir }}/alertmanager.yml \
+	     --web.listen-address "0.0.0.0:{{ port_amgr }}" \
+             --storage.path {{ prom_data_dir }}/amgr
+
+ExecReload=/bin/kill -SIGHUP $MAINPID
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

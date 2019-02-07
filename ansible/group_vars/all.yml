@@ -1,0 +1,29 @@
+# 2018-12-23 (cc) <paul4hough@gmail.com>
+#
+---
+consul_user: consul
+consul_group: consul
+consul_cfg_dir: /etc/consul.d
+consul_data_dir: /opt/consul
+
+bin_dir: /usr/local/bin
+sbin_dir: /usr/local/sbin
+
+prom_user: prometheus
+prom_cfg_dir: /etc/prometheus
+prom_data_dir: /opt/prometheus
+
+
+prom_services:
+  - prometheus
+  - alertmanager
+
+port_prom: 9090
+port_amgr: 9093
+port_node_exp: 9100
+port_consul: 8300
+port_consul_http: 8500
+
+# alert manager receiver
+addr_agate: localhost
+port_agate: 4464

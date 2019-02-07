@@ -1,0 +1,14 @@
+# 2018-12-23 (cc) <paul4hough@gmail.com> -*- yaml -*-
+#
+---
+groups:
+  - name: disk-usage
+    rules:
+      - alert: disk-usage
+        expr: >-
+          (node_filesystem_free_bytes * 100
+          / node_filesystem_size_bytes)
+          < 30
+        annotations:
+          description: >-
+            disk usage {{ $labels.mountpoint }} < {{ $value }} free

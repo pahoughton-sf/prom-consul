@@ -1,0 +1,19 @@
+# 2019-02-06 (cc) <paul4hough@gmail.com>
+#
+---
+- name: generic node a
+  hosts: anode
+  vars:
+    server_type: basic
+    prom_node_group: prom-01
+  tasks:
+    - import_tasks: tasks-base.yml
+    - import_tasks: tasks-consul.yml
+    - import_tasks: tasks-node-exp.yml
+
+  handlers:
+    - name: consul reload
+      become: true
+      service:
+        name: consul
+        state: reloaded

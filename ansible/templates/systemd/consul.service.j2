@@ -1,0 +1,21 @@
+# 2018-02-06 (cc) <paul4hough@gmail.com> -*- conf-unix -*-
+# service file for consul
+
+[Unit]
+Description="HashiCorp Consul - A service mesh solution"
+Documentation=https://www.consul.io/
+Requires=network-online.target
+After=network-online.target
+ConditionFileNotEmpty={{ consul_cfg_dir }}/00-consul.json
+
+[Service]
+User={{ consul_user }}
+Group={{ consul_group }}
+ExecStart={{ bin_dir }}/consul agent -dev -config-dir={{ consul_cfg_dir }}
+ExecReload={{ bin_dir }}/consul reload
+KillMode=process
+Restart=on-failure
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target

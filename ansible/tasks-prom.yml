@@ -1,0 +1,111 @@
+# 2018-12-23 (cc) <paul4hough@gmail.com>
+#
+---
+
+- name: create {{ prom_user }} user
+  become: true
+  user:
+    name: "{{ prom_user }}"
+    home: "{{ prom_data_dir }}"
+    system: true
+
+- name: create prometheus directories
+  become: true
+  file:
+    name: "{{ item }}"
+    state: directory
+    mode: 0775
+    owner: "{{ prom_user }}"
+    group: "{{ prom_user }}"
+  loop:
+    - "{{ prom_cfg_dir }}"
+    - "{{ prom_cfg_dir }}/alerts"
+    - "{{ prom_data_dir }}"
+    - "{{ prom_data_dir }}/prom"
+    - /usr/share/prometheus
+
+- name: upload prometheus binary
+  become: true
+  copy:
+    src: bin/{{ item }}
+    dest: "{{ sbin_dir }}/{{ item }}"
+    mode: 0775
+  loop:
+    - prometheus
+
+- name: upload promtool binary
+  become: true
+  copy:
+    src: bin/{{ item }}
+    dest: "{{ bin_dir }}/{{ item }}"
+    mode: 0775
+  loop:
+    - promtool
+
+- name: install prometheus consoles
+  become: true
+  copy:
+    src: "{{ item }}"
+    dest: /usr/share/{{ item }}
+    owner: "{{ prom_user }}"
+    group: "{{ prom_user }}"
+  loop:
+    - prometheus/console_libraries/
+    - prometheus/consoles/
+
+- name: install prometheus services files
+  become: true
+  template:
+    src: systemd/{{ item }}.service.j2
+    dest: /etc/systemd/system/{{ item }}.service
+  loop:
+    - prometheus
+  notify:
+    - prometheus restart
+
+- name: install prometheus config
+  become: true
+  template:
+    src: "config/{{ item }}.j2"
+    dest: "{{ prom_cfg_dir }}/{{ item }}"
+    mode: 0664
+    owner: "{{ prom_user }}"
+    group: "{{ prom_user }}"
+  with_items:
+    - prometheus.yml
+  notify:
+    - prometheus restart
+
+- name: install alerts
+  become: true
+  copy:
+    src: "{{ item }}"
+    dest: "{{ prom_cfg_dir }}/{{ item }}"
+    mode: 0775
+    owner: "{{ prom_user }}"
+    group: "{{ prom_user }}"
+  with_items:
+    - alerts/disk-space.yml
+    - alerts/exporter.yml
+  notify:
+    - prometheus restart
+
+- name: enable and start prometheus service
+  become: true
+  systemd:
+    name: prometheus
+    state: started
+    enabled: true
+    daemon_reload: true
+
+- name: install consul service file
+  become: true
+  become_user: "{{ consul_user }}"
+  template:
+    src: consul.d/{{ item }}.j2
+    dest: "{{ consul_cfg_dir }}/{{ item }}"
+    mode: 0640
+  loop:
+    - 10-prometheus.json
+  notify:
+    - consul reload

@@ -1,0 +1,51 @@
+# 2018-12-23 (cc) <paul4hough@gmail.com>
+#
+---
+- name: prometheus node
+  hosts: prom
+  vars:
+    server_type: prometheus
+    prom_node_group: prom-01
+  tasks:
+    - import_tasks: tasks-base.yml
+    - import_tasks: tasks-consul.yml
+    - import_tasks: tasks-consul-server.yml
+    - import_tasks: tasks-node-exp.yml
+    - import_tasks: tasks-prom.yml
+
+  handlers:
+    - name: consul reload
+      become: true
+      service:
+        name: consul
+        state: reloaded
+
+    - name: consul restart
+      become: true
+      service:
+        name: consul
+        state: restarted
+
+    - name: prometheus restart
+      become: true
+      service:
+        name: prometheus
+        state: restarted
+
+    - name: prometheus reload
+      become: true
+      service:
+        name: prometheus
+        state: reloaded
+
+    - name: alertmanager restart
+      become: true
+      service:
+        name: alertmanager
+        state: restarted
+
+    - name: alertmanager reload
+      become: true
+      service:
+        name: alertmanager
+        state: reloaded

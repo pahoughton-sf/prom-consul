@@ -1,0 +1,21 @@
+# 2018-12-23 (cc) <paul4hough@gmail.com> -*- conf-unix -*-
+# service file for prometheus
+[Unit]
+Description=Prometheus Server
+Documentation=https://prometheus.io/docs/introduction/overview/
+After=network-online.target
+
+[Service]
+User={{ prom_user }}
+ExecStart={{ sbin_dir }}/prometheus \
+	     --config.file {{ prom_cfg_dir }}/prometheus.yml \
+	     --web.listen-address "0.0.0.0:{{ port_prom }}" \
+             --storage.tsdb.path {{ prom_data_dir }}/prom \
+             --web.console.libraries=/usr/share/prometheus/console_libraries \
+             --web.console.templates=/usr/share/prometheus/consoles
+
+ExecReload=/bin/kill -SIGHUP $MAINPID
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

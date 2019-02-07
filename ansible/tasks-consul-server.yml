@@ -1,0 +1,15 @@
+# 2019-01-28 (cc) <paul4hough@gmail.com>
+#
+---
+
+- name: install {{ consul_cfg_dir }} files
+  become: true
+  become_user: "{{ consul_user }}"
+  template:
+    src: consul.d/{{ item }}.j2
+    dest: "{{ consul_cfg_dir }}/{{ item }}"
+    mode: 0640
+  loop:
+    - 01-server.json
+  notify:
+    - consul restart

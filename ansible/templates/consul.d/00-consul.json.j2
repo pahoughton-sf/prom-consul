@@ -1,0 +1,12 @@
+{
+  "datacenter": "pah",
+  "node_meta": {
+    "server_type": "{{ server_type }}",
+    "prom_group": "{{ prom_node_group }}"
+  },
+  "bind_addr": "{{ ansible_eth1.ipv4.address }}",
+  "data_dir": "/opt/consul",
+  "retry_join": [
+    "10.0.5.10"
+  ]
+}
